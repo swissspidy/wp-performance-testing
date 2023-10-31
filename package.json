@@ -1,0 +1,33 @@
+{
+	"name": "@swissspidy/wp-performance-testing",
+	"private": true,
+	"description": "Example repository demonstrating how to set up performance testing in a WordPress project.",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/swissspidy/wp-performance-testing"
+	},
+	"author": "swissspidy",
+	"license": "GPL-2.0-or-later",
+	"bugs": {
+		"url": "https://github.com/swissspidy/wp-performance-testing/issues"
+	},
+	"homepage": "https://github.com/swissspidy/wp-performance-testing#readme",
+	"devDependencies": {
+		"@playwright/test": "^1.39.0",
+		"@wordpress/e2e-test-utils-playwright": "^0.12.0",
+		"@wordpress/env": "^8.10.0",
+		"@wordpress/scripts": "^26.15.0",
+		"eslint-plugin-playwright": "^0.18.0",
+		"patch-package": "^8.0.0",
+		"tablemark": "^3.0.0"
+	},
+	"scripts": {
+		"postinstall": "patch-package",
+		"lint": "wp-scripts lint-js",
+		"format": "wp-scripts format",
+		"test:performance": "wp-scripts test-playwright --config tests/performance/playwright.config.ts",
+		"test:performance:merge-reports": "playwright merge-reports --reporter tests/performance/config/performance-reporter.ts ./blob-report",
+		"test:performance:results": "node tests/performance/cli/results.js",
+		"wp-env": "wp-env"
+	}
+}
