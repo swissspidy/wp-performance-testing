@@ -1,0 +1,109 @@
+name: Lint and Test
+
+on:
+    push:
+        branches:
+            - main
+    pull_request:
+
+jobs:
+    lint-js:
+        name: JS Lints
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Setup Node
+              uses: actions/setup-node@v4
+              with:
+                  node-version-file: '.nvmrc'
+                  cache: npm
+
+            - name: Install dependencies
+              run: npm ci
+
+            - name: Lint JS
+              run: npm run lint
+
+    performance-tests:
+        name: 'Performance Tests'
+        runs-on: ubuntu-latest
+        env:
+            WP_ARTIFACTS_PATH: ${{ github.workspace }}/artifacts
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Setup Node
+              uses: actions/setup-node@v4
+              with:
+                  node-version-file: '.nvmrc'
+                  cache: npm
+
+            - name: Install dependencies
+              run: npm ci
+
+            - name: Install Playwright Browsers
+              run: npx playwright install --with-deps
+
+            - name: Start WordPress
+              run: npm run wp-env start
+
+            - name: Update permalink structure
+              run: |
+                  npm run wp-env run tests-cli wp rewrite structure '/%postname%/' -- --hard
+
+            - name: Import mock data
+              run: |
+                  npm run wp-env run tests-cli curl https://raw.githubusercontent.com/WordPress/theme-test-data/b9752e0533a5acbb876951a8cbb5bcc69a56474c/themeunittestdata.wordpress.xml -- --output /tmp/themeunittestdata.wordpress.xml
+                  npm run wp-env run tests-cli wp import /tmp/themeunittestdata.wordpress.xml -- --authors=create
+
+            - name: Run tests
+              run: |
+                  npm run test:performance
+                  mv ${{ env.WP_ARTIFACTS_PATH }}/performance-results.json ${{ runner.temp }}/results_after.json
+
+            - name: Check out base commit
+              run: |
+                  if [[ -z "$BASE_REF" ]]; then
+                    git fetch -n origin $BASE_SHA
+                    git reset --hard $BASE_SHA
+                  else
+                    git fetch -n origin $BASE_REF
+                    git reset --hard $BASE_SHA
+                  fi
+              env:
+                  BASE_REF: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.ref || '' }}
+                  BASE_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.event.before }}
+
+            # Run tests without causing job to fail if they don't pass (e.g. because of env issues).
+            - name: Run tests for base
+              run: |
+                  npm run test:performance || true
+                  if [ -f "{{ env.WP_ARTIFACTS_PATH }}/performance-results.json" ]; then
+                    mv ${{ env.WP_ARTIFACTS_PATH }}/performance-results.json ${{ runner.temp }}/results_before.json
+                  fi;
+
+            - name: Reset to original commit
+              run: |
+                  git reset --hard $GITHUB_SHA
+
+            - name: Compare results with base
+              run: |
+                  if [ -f "${{ runner.temp }}/results_before.json" ]; then
+                    npm run test:performance:results ${{ runner.temp }}/results_after.json ${{ runner.temp }}/results_before.json
+                  else
+                    npm run test:performance:results ${{ runner.temp }}/results_after.json
+                  fi;
+
+            - name: Add workflow summary
+              run: |
+                  cat ${{ env.WP_ARTIFACTS_PATH }}/performance-results.md >> $GITHUB_STEP_SUMMARY
+
+            - name: Upload performance results
+              if: success()
+              uses: actions/upload-artifact@83fd05a356d7e2593de66fc9913b3002723633cb # v3.1.1
+              with:
+                  name: performance-results
+                  path: ${{ env.WP_ARTIFACTS_PATH }}/performance-results.json
