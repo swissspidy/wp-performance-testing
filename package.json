@@ -18,8 +18,7 @@
 		"@wordpress/env": "^8.10.0",
 		"@wordpress/scripts": "^26.15.0",
 		"eslint-plugin-playwright": "^0.18.0",
-		"patch-package": "^8.0.0",
-		"tablemark": "^3.0.0"
+		"patch-package": "^8.0.0"
 	},
 	"scripts": {
 		"postinstall": "patch-package",
