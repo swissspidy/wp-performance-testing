@@ -194,7 +194,9 @@ for ( const { file, title, results } of afterStats ) {
 		/**
 		 * @type {Record<string, string>}
 		 */
-		const diffResult = {};
+		const diffResult = {
+			Run: i,
+		};
 
 		for ( const [ key, values ] of Object.entries( newResult ) ) {
 			// Only do comparison if the number of results is the same.
