@@ -4,6 +4,10 @@ import { camelCaseDashes } from '../utils';
 const results: Record< string, number[] > = {};
 
 test.describe( 'Frontend Tests', () => {
+	test.use( {
+		storageState: {}, // User will be logged out.
+	} );
+
 	// Run *once* before *all* iterations.
 	// Ideal for setting up the site for this particular test.
 	test.beforeAll( async ( { requestUtils } ) => {
