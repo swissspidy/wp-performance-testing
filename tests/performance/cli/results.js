@@ -29,8 +29,12 @@ if ( beforeFile && ! existsSync( beforeFile ) ) {
  * @return {string} Formatted value.
  */
 function formatTableValue( v ) {
-	if ( v === true || v === 'true' ) return '✅';
-	if ( ! v || v === 'false' ) return '';
+	if ( v === true || v === 'true' ) {
+		return '✅';
+	}
+	if ( ! v || v === 'false' ) {
+		return '';
+	}
 	return v?.toString() || String( v );
 }
 
