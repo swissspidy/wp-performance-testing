@@ -16,7 +16,7 @@
 		"@playwright/test": "^1.44.0",
 		"@wordpress/e2e-test-utils-playwright": "^0.25.0",
 		"@wordpress/env": "^9.9.0",
-		"@wordpress/scripts": "^27.8.0",
+		"@wordpress/scripts": "^27.9.0",
 		"eslint-plugin-playwright": "^1.6.0",
 		"patch-package": "^8.0.0"
 	},
