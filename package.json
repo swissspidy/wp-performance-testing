@@ -14,7 +14,7 @@
 	"homepage": "https://github.com/swissspidy/wp-performance-testing#readme",
 	"devDependencies": {
 		"@playwright/test": "^1.44.1",
-		"@wordpress/e2e-test-utils-playwright": "^0.26.0",
+		"@wordpress/e2e-test-utils-playwright": "^1.0.0",
 		"@wordpress/env": "^10.0.0",
 		"@wordpress/scripts": "^28.0.0",
 		"eslint-plugin-playwright": "^1.6.2",
